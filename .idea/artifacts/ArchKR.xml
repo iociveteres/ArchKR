@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ArchKR">
+    <output-path>$PROJECT_DIR$/out/artifacts/ArchKR</output-path>
+    <root id="archive" name="ArchKR.jar" />
+  </artifact>
+</component>
