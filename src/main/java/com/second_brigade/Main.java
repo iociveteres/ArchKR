@@ -9,7 +9,7 @@ public class Main {
 
         EventQueue.invokeLater(() -> {
             JFrame frame = new WorkFrame();
-            frame.setTitle("RISC-модель (Бубнов Земцов Родионов)");
+            frame.setTitle("Мохнаткин, Волконенков, Сергеев, вариант 9");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
             frame.setResizable(false);

@@ -288,7 +288,10 @@ public class WorkManager {
                 workFrame.getMemory().setValue(operand1, rValue1);
                 workFrame.getMemory().setValue(operand1 + 1, rValue2);
             }
-            case "MOVC" -> workFrame.getGeneralRegisters().updateRegister(operand1, strOperand2);
+            case "MOVC" -> {
+                strOperand2 = IntToHex(HexToInt(strOperand2));
+                workFrame.getGeneralRegisters().updateRegister(operand1, strOperand2);
+            }
             case "MOVB" -> {
                 mValue1 = workFrame.getMemory().getValue(operand2 + operand3);
                 mValue2 = workFrame.getMemory().getValue(operand2 + operand3 + 1);

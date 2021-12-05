@@ -14,11 +14,13 @@ import java.util.Objects;
 public class WorkFrame extends JFrame {
 
     private static final int DEFAULT_WIDTH = 1000;
-    private static final int DEFAULT_HEIGHT = 550;
+    private static final int DEFAULT_HEIGHT = 850;
 
     private final JFileChooser fileChooser = new JFileChooser();
     private final JToolBar bottomToolbar = new JToolBar();
+    private final JButton stepButton = new JButton("Шаг");
     private final JButton runButton = new JButton("Выполнить");
+
 
     private final GeneralRegisters generalRegisters = new GeneralRegisters();
     private final FloatGeneralRegisters floatGeneralRegisters = new FloatGeneralRegisters();
@@ -40,21 +42,78 @@ public class WorkFrame extends JFrame {
             System.exit(0);
     };
 
+    ActionListener open = e -> {
+        System.out.println("ActionListener.actionPerformed : open");
+        JFrame container = new JFrame();
+        fileChooser.showOpenDialog(container);
+        try {
+            WorkManager.OPENED_FILE = fileChooser.getSelectedFile().getAbsolutePath();
+
+            System.out.println(" " + WorkManager.OPENED_FILE);
+            if (!Objects.equals(WorkManager.OPENED_FILE, "")) {
+                WorkManager.getTextFromFile();
+            }
+
+            WorkManager.copyDataToProgram();
+        }
+        catch (NullPointerException exception) {
+            System.out.println("No file chosen: " + exception.getMessage());
+        }
+
+        container.dispose();
+    };
+
+    ActionListener reset = e -> {
+        System.out.println("ActionListener.actionPerformed : reset");
+        stepButton.setEnabled(true);
+        runButton.setEnabled(true);
+        WorkManager.resetSystem(WorkFrame.this);
+        instructions.initialSet();
+    };
+
+    ActionListener showHelp = e -> {
+        Object[] options = { "Ок" };
+        String text =
+                """
+                        Данная программа позволяет эмулировать работу RISC-процессора.
+                        Для того, чтобы загрузить программу, выберите опцию "Открыть" из выпадающего меню "Файл".
+                        Чтобы сбросить состояние эмулятора в исходное, выберите опцию "Сброс" из выпадающего меню "Файл".
+                        Чтобы выполнить программу полностью нажмите "Выполнить".
+                        Чтобы выполнить очередную инструкцию программы пошагово нажмите "Шаг".
+                 """;
+        int selectedValue = JOptionPane.showOptionDialog(null, text,
+                "Помощь", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                null, options, options[0]);
+    };
+
     public WorkFrame() {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
         setBounds(screenSize.width/2 - DEFAULT_WIDTH/2, screenSize.height/2 - DEFAULT_HEIGHT/2, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
         JMenuBar menuBar = new JMenuBar();
-        menuBar.add(createFileMenu());
-        JButton exit = new JButton();
-        exit.setText("Выход");
+        //menuBar.add(createFileMenu());
+        JButton openButton = new JButton("Открыть");
+        openButton.setBorder(BorderFactory.createEtchedBorder());
+        openButton.addActionListener(open);
+        menuBar.add(openButton);
+
+        JButton resetButton = new JButton("Сброс");
+        resetButton.setBorder(BorderFactory.createEtchedBorder());
+        resetButton.addActionListener(reset);
+        menuBar.add(resetButton);
+
+        JButton help = new JButton("Помощь");
+        help.setBorder(BorderFactory.createEtchedBorder());
+        help.addActionListener(showHelp);
+        menuBar.add(help);
+      
+        JButton exit = new JButton("Выход");
         exit.setBorder(BorderFactory.createEtchedBorder());
         exit.addActionListener(programExit);
         menuBar.add(exit);
-        setJMenuBar(menuBar);
 
-        createFileMenu();
+        setJMenuBar(menuBar);
 
         fileChooser.setBounds(DEFAULT_WIDTH/2, DEFAULT_HEIGHT/2, 150, 150);
         fileChooser.setAcceptAllFileFilterUsed(false);
@@ -69,91 +128,111 @@ public class WorkFrame extends JFrame {
 
     private void addComponents() {
 
-        JPanel leftTopPanel = new JPanel(new BorderLayout());
-        JPanel leftCenterTopPanel = new JPanel(new BorderLayout());
-        JPanel rightCenterTopPanel = new JPanel(new BorderLayout());
-        JPanel rightTopPanel = new JPanel(new BorderLayout());
+        JPanel PanelTLB = new JPanel(new BorderLayout());
+        JPanel PanelMemory = new JPanel(new BorderLayout());
+        JPanel PanelInstructions = new JPanel(new BorderLayout());
+        JPanel PanelProcessorFlags = new JPanel(new BorderLayout());
 
-        leftTopPanel.setBorder(new TitledBorder(new EtchedBorder(), "TLB"));
-        leftCenterTopPanel.setBorder(new TitledBorder(new EtchedBorder(), "Память"));
-        rightCenterTopPanel.setBorder(new TitledBorder(new EtchedBorder(), "Инструкции"));
-        rightTopPanel.setBorder(new TitledBorder(new EtchedBorder(), "Флаги процессора"));
+        PanelTLB.setBorder(new TitledBorder(new EtchedBorder(), "TLB"));
+        PanelMemory.setBorder(new TitledBorder(new EtchedBorder(), "Память"));
+        PanelInstructions.setBorder(new TitledBorder(new EtchedBorder(), "Инструкции"));
+        PanelInstructions.setMinimumSize(new Dimension(400, 300));
+        PanelProcessorFlags.setBorder(new TitledBorder(new EtchedBorder(), "Флаги процессора"));
 
-        JPanel leftDownPanel = new JPanel(new BorderLayout());
-        JPanel leftCenterDownPanel = new JPanel(new BorderLayout());
-        JPanel rightCenterDownPanel = new JPanel(new BorderLayout());
-        JPanel rightDownPanel = new JPanel(new BorderLayout());
+        JPanel PanelGPRegisters = new JPanel(new BorderLayout());
+        JPanel PanelFloatGPRegisters = new JPanel(new BorderLayout());
+        JPanel PanelSystemRegisters = new JPanel(new BorderLayout());
+        JPanel PanelFloatFlags = new JPanel(new BorderLayout());
 
-        leftDownPanel.setBorder(new TitledBorder(new EtchedBorder(), "Регистры общего назначения"));
-        leftCenterDownPanel.setBorder(new TitledBorder(new EtchedBorder(), "Float-регистры общего назначения"));
-        rightCenterDownPanel.setBorder(new TitledBorder(new EtchedBorder(), "Системные регистры"));
-        rightDownPanel.setBorder(new TitledBorder(new EtchedBorder(), "Float-флаги процессора"));
+        PanelGPRegisters.setBorder(new TitledBorder(new EtchedBorder(), "Регистры общего назначения"));
+        PanelFloatGPRegisters.setBorder(new TitledBorder(new EtchedBorder(), "Float-регистры общего назначения"));
+        PanelSystemRegisters.setBorder(new TitledBorder(new EtchedBorder(), "Системные регистры"));
+        PanelFloatFlags.setBorder(new TitledBorder(new EtchedBorder(), "Float-флаги процессора"));
+
+        Box BoxGeneralRegisters = Box.createVerticalBox();
+        BoxGeneralRegisters.add(Box.createVerticalStrut(5));
+        BoxGeneralRegisters.add(generalRegisters);
+        BoxGeneralRegisters.add(Box.createVerticalGlue());
+        PanelGPRegisters.add(BoxGeneralRegisters, BorderLayout.CENTER);
+
+
+        Box BoxProcessorFlags = Box.createVerticalBox();
+        BoxProcessorFlags.add(Box.createVerticalStrut(5));
+        BoxProcessorFlags.add(processorFlags);
+        BoxProcessorFlags.add(Box.createVerticalGlue());
+        PanelProcessorFlags.add(BoxProcessorFlags, BorderLayout.CENTER);
+
+        Box BoxFloatGeneralRegisters = Box.createVerticalBox();
+        BoxFloatGeneralRegisters.add(Box.createVerticalStrut(5));
+        BoxFloatGeneralRegisters.add(floatGeneralRegisters);
+        BoxFloatGeneralRegisters.add(Box.createVerticalGlue());
+        PanelFloatGPRegisters.add(BoxFloatGeneralRegisters, BorderLayout.CENTER);
+
+        Box BoxFloatProcessorFlags = Box.createVerticalBox();
+        BoxFloatProcessorFlags.add(Box.createVerticalStrut(5));
+        BoxFloatProcessorFlags.add(floatProcessorFlags);
+        BoxFloatProcessorFlags.add(Box.createVerticalGlue());
+        PanelFloatFlags.add(BoxFloatProcessorFlags, BorderLayout.NORTH);
+
+        Box Int = Box.createVerticalBox();
+        Int.add(PanelProcessorFlags);
+        Int.add(Box.createVerticalStrut(5));
+        Int.add(PanelGPRegisters);
+
+        Box Float = Box.createVerticalBox();
+        Float.add(PanelFloatFlags);
+        Float.add(Box.createVerticalStrut(5));
+        Float.add(PanelFloatGPRegisters);
+
+        Box Instructions = Box.createVerticalBox();
+        PanelInstructions.add(instructions, BorderLayout.CENTER);
+
+        JPanel Buttons = new JPanel();
+        Buttons.add(stepButton);
+        Buttons.add(runButton);
+
+        PanelInstructions.add(Buttons, BorderLayout.SOUTH);
+        Instructions.add(PanelInstructions);
+        Instructions.add(Box.createVerticalStrut(5));
+
 
         Box horizontalTop = Box.createHorizontalBox();
 
         horizontalTop.add(Box.createHorizontalStrut(5));
-        leftTopPanel.add(tlb, BorderLayout.CENTER);
-        horizontalTop.add(leftTopPanel);
+        horizontalTop.add(Int);
 
         horizontalTop.add(Box.createHorizontalStrut(5));
-        leftCenterTopPanel.add(memory, BorderLayout.CENTER);
-        horizontalTop.add(leftCenterTopPanel);
+        horizontalTop.add(Float);
 
         horizontalTop.add(Box.createHorizontalStrut(5));
-        rightCenterTopPanel.add(instructions, BorderLayout.CENTER);
-        horizontalTop.add(rightCenterTopPanel);
 
-        horizontalTop.add(Box.createHorizontalStrut(5));
-        rightTopPanel.add(processorFlags);
-        horizontalTop.add(rightTopPanel, BorderLayout.CENTER);
+        horizontalTop.add(PanelInstructions);
 
+        PanelTLB.add(tlb, BorderLayout.CENTER);
 
-        Box horizontalDown = Box.createHorizontalBox();
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
-        Box downLeftElement = Box.createVerticalBox();
-        downLeftElement.add(Box.createVerticalStrut(5));
-        downLeftElement.add(generalRegisters);
-        downLeftElement.add(Box.createVerticalGlue());
-        leftDownPanel.add(downLeftElement, BorderLayout.CENTER);
-
-        Box downLeftCenterElement = Box.createVerticalBox();
-        downLeftCenterElement.add(Box.createVerticalStrut(5));
-        downLeftCenterElement.add(floatGeneralRegisters);
-        downLeftCenterElement.add(Box.createVerticalGlue());
-        leftCenterDownPanel.add(downLeftCenterElement, BorderLayout.CENTER);
+        PanelMemory.add(memory, BorderLayout.CENTER);
 
         Box downRightCenterElement = Box.createVerticalBox();
         downRightCenterElement.add(Box.createVerticalStrut(5));
         downRightCenterElement.add(firstGroupSystemRegisters);
-        downRightCenterElement.add(Box.createVerticalStrut(5));
         downRightCenterElement.add(secondGroupSystemRegisters);
-        downRightCenterElement.add(Box.createVerticalStrut(5));
         downRightCenterElement.add(thirdGroupSystemRegisters);
-        rightCenterDownPanel.add(downRightCenterElement, BorderLayout.CENTER);
+        PanelSystemRegisters.add(downRightCenterElement, BorderLayout.CENTER);
 
-        Box downRightElement = Box.createVerticalBox();
-        downRightElement.add(Box.createVerticalStrut(5));
-        downRightElement.add(floatProcessorFlags);
-        downRightElement.add(Box.createVerticalGlue());
-        rightDownPanel.add(downRightElement, BorderLayout.NORTH);
+        Box horizontalDown = Box.createHorizontalBox();
+        horizontalDown.add(Box.createHorizontalStrut(5));
 
-        horizontalDown.add(leftDownPanel);
+        horizontalDown.add(PanelTLB);
         horizontalDown.add(Box.createHorizontalGlue());
         horizontalDown.add(Box.createHorizontalStrut(5));
 
-        horizontalDown.add(leftCenterDownPanel);
+        horizontalDown.add(PanelMemory);
         horizontalDown.add(Box.createHorizontalGlue());
         horizontalDown.add(Box.createHorizontalStrut(5));
 
-        horizontalDown.add(rightCenterDownPanel);
+        horizontalDown.add(PanelSystemRegisters);
         horizontalDown.add(Box.createHorizontalGlue());
         horizontalDown.add(Box.createHorizontalStrut(5));
-
-        horizontalDown.add(rightDownPanel);
-        horizontalDown.add(Box.createHorizontalGlue());
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
 
         Box mainLayout = Box.createVerticalBox();
         mainLayout.add(horizontalTop);
@@ -161,12 +240,6 @@ public class WorkFrame extends JFrame {
         mainLayout.add(horizontalDown);
         mainLayout.add(Box.createVerticalGlue());
         mainLayout.add(Box.createVerticalStrut(20));
-
-
-        for (int i = 0; i < 45; ++i) {
-            bottomToolbar.addSeparator();
-        }
-        bottomToolbar.add(runButton);
 
         Container content = getContentPane();
         content.setLayout(new BorderLayout());
@@ -188,56 +261,27 @@ public class WorkFrame extends JFrame {
         };
         fileChooser.setFileFilter(fileFilter);
 
-        runButton.addActionListener(e -> {
-
+        stepButton.addActionListener(e -> {
             boolean endOfCommands = !WorkManager.runAction(WorkFrame.this);
             if(endOfCommands) {
-                JOptionPane.showMessageDialog(null, "Команды закончились!");
+                JOptionPane.showMessageDialog(null, "Команды выполнены!");
+                stepButton.setEnabled(false);
                 runButton.setEnabled(false);
             }
         });
-    }
 
-    private JMenu createFileMenu() {
-        JMenu fileMenu = new JMenu("Файл");
-        JMenuItem open = new JMenuItem("Открыть");
-        JMenuItem reset = new JMenuItem("Сброс");
-
-        fileMenu.add(open);
-        fileMenu.add(reset);
-        fileMenu.addSeparator();
-
-        open.addActionListener(e -> {
-            System.out.println("ActionListener.actionPerformed : open");
-            JFrame container = new JFrame();
-            fileChooser.showOpenDialog(container);
-            try {
-                WorkManager.OPENED_FILE = fileChooser.getSelectedFile().getAbsolutePath();
-
-                System.out.println(" " + WorkManager.OPENED_FILE);
-                if (!Objects.equals(WorkManager.OPENED_FILE, "")) {
-                    WorkManager.getTextFromFile();
+        runButton.addActionListener(e -> {
+            boolean endOfCommands = true;
+            do {
+                endOfCommands = !WorkManager.runAction(WorkFrame.this);
+                if (endOfCommands) {
+                    JOptionPane.showMessageDialog(null, "Команды выполнены!");
+                    stepButton.setEnabled(false);
+                    runButton.setEnabled(false);
                 }
-
-                WorkManager.copyDataToProgram();
-            }
-            catch (NullPointerException exception) {
-                System.out.println("No file chosen: " + exception.getMessage());
-            }
-
-            container.dispose();
+            } while (!endOfCommands);
         });
-
-        reset.addActionListener(e -> {
-            System.out.println("ActionListener.actionPerformed : reset");
-            runButton.setEnabled(true);
-            WorkManager.resetSystem(WorkFrame.this);
-            instructions.initialSet();
-        });
-
-        return fileMenu;
     }
-
 
     public GeneralRegisters getGeneralRegisters() {
         return generalRegisters;
