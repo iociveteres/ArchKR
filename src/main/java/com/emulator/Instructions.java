@@ -1,55 +1,50 @@
 package com.emulator;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.io.Serial;
+import java.util.Vector;
 
 public class Instructions extends JScrollPane{
 
     @Serial
     private static final long serialVersionUID = 1L;
-    private static final String[] listData = new String[128];
-    private static final JList<String> theList = new JList<>(listData);
 
-    {
-        initialSet();
-    }
+    private static Vector<Vector<String>> commandsStrings = new Vector<Vector<String>>();
+    static Vector<String> columnsHeader = new Vector<String>() {{add("Инструкции");}};
+    static DefaultTableModel tableModelCommands = new DefaultTableModel(commandsStrings, columnsHeader);
+    static JTable tableCommands = new JTable(tableModelCommands);
 
     public Instructions()
     {
-        super(theList);
-    }
-
-    public void initialSet()
-    {
-        for (int i = 0; i < 12; i++)
-        {
-            listData[i] = "\t";
-        }
-        this.updateUI();
-    }
-
-    public void setValue(int number, String value)
-    {
-        listData[number] = value;
-        this.updateUI();
+        super();
+        this.setViewportView(tableCommands);;
     }
 
     public static void setInstructions(DefaultListModel<String> m) {
+        /*
         for (int i = 0; i < 12; i++) {
             listData[i] = " ";
         }
         theList.updateUI();
-
+        */
+        commandsStrings.clear();
         for (int i = 0; i < m.getSize(); i++)
         {
-            listData[i] = "" + m.getElementAt(i);
+            commandsStrings.add(i, new Vector<>());
+            commandsStrings.get(i).add(m.getElementAt(i));
+
         }
-        theList.validate();
-        theList.updateUI();
+        tableModelCommands.fireTableDataChanged();
     }
 
     public static void counter(int i)
     {
-        theList.setSelectedIndex(i);
+        tableCommands.setRowSelectionInterval(i, i);
+    }
+
+    public void initialSet() {
+        commandsStrings.clear();
+        tableModelCommands.fireTableDataChanged();
     }
 }

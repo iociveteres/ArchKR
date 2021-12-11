@@ -76,10 +76,12 @@ public class WorkFrame extends JFrame {
         String text =
                 """
                         Данная программа позволяет эмулировать работу RISC-процессора.
-                        Для того, чтобы загрузить программу, выберите опцию "Открыть" из выпадающего меню "Файл".
-                        Чтобы сбросить состояние эмулятора в исходное, выберите опцию "Сброс" из выпадающего меню "Файл".
-                        Чтобы выполнить программу полностью нажмите "Выполнить".
-                        Чтобы выполнить очередную инструкцию программы пошагово нажмите "Шаг".
+                        Для того, чтобы загрузить программу, нажмите "Открыть".
+                        Чтобы сбросить состояние эмулятора в исходное, нажмите "Сброс".
+                        Чтобы выполнить программу полностью, нажмите "Выполнить".
+                        Чтобы выполнить очередную инструкцию программы пошагово, нажмите "Шаг".
+                        Чтобы изменить инструкцию после загрузки в программу, нажмите на неё в окне программы и отредактируйте её.
+                        Чтобы выйти из программы, нажмите "Выход".
                  """;
         int selectedValue = JOptionPane.showOptionDialog(null, text,
                 "Помощь", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE,
@@ -136,7 +138,10 @@ public class WorkFrame extends JFrame {
         PanelTLB.setBorder(new TitledBorder(new EtchedBorder(), "TLB"));
         PanelMemory.setBorder(new TitledBorder(new EtchedBorder(), "Память"));
         PanelInstructions.setBorder(new TitledBorder(new EtchedBorder(), "Инструкции"));
-        PanelInstructions.setMinimumSize(new Dimension(400, 300));
+        PanelInstructions.setMaximumSize( new Dimension(
+                200,
+                Integer.MAX_VALUE
+        ) );
         PanelProcessorFlags.setBorder(new TitledBorder(new EtchedBorder(), "Флаги процессора"));
 
         JPanel PanelGPRegisters = new JPanel(new BorderLayout());
@@ -195,19 +200,6 @@ public class WorkFrame extends JFrame {
         Instructions.add(PanelInstructions);
         Instructions.add(Box.createVerticalStrut(5));
 
-
-        Box horizontalTop = Box.createHorizontalBox();
-
-        horizontalTop.add(Box.createHorizontalStrut(5));
-        horizontalTop.add(Int);
-
-        horizontalTop.add(Box.createHorizontalStrut(5));
-        horizontalTop.add(Float);
-
-        horizontalTop.add(Box.createHorizontalStrut(5));
-
-        horizontalTop.add(PanelInstructions);
-
         PanelTLB.add(tlb, BorderLayout.CENTER);
 
         PanelMemory.add(memory, BorderLayout.CENTER);
@@ -219,32 +211,15 @@ public class WorkFrame extends JFrame {
         downRightCenterElement.add(thirdGroupSystemRegisters);
         PanelSystemRegisters.add(downRightCenterElement, BorderLayout.CENTER);
 
-        Box horizontalDown = Box.createHorizontalBox();
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
-        horizontalDown.add(PanelTLB);
-        horizontalDown.add(Box.createHorizontalGlue());
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
-        horizontalDown.add(PanelMemory);
-        horizontalDown.add(Box.createHorizontalGlue());
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
-        horizontalDown.add(PanelSystemRegisters);
-        horizontalDown.add(Box.createHorizontalGlue());
-        horizontalDown.add(Box.createHorizontalStrut(5));
-
-        Box mainLayout = Box.createVerticalBox();
-        mainLayout.add(horizontalTop);
-        mainLayout.add(Box.createVerticalStrut(20));
-        mainLayout.add(horizontalDown);
-        mainLayout.add(Box.createVerticalGlue());
-        mainLayout.add(Box.createVerticalStrut(20));
 
         Container content = getContentPane();
-        content.setLayout(new BorderLayout());
-        content.add(mainLayout, BorderLayout.CENTER);
-        content.add(bottomToolbar, BorderLayout.SOUTH);
+        content.setLayout(new GridLayout(2, 3, 5,5));
+        content.add(Int);
+        content.add(Float);
+        content.add(PanelInstructions);
+        content.add(PanelTLB);
+        content.add(PanelMemory);
+        content.add(PanelSystemRegisters);
     }
 
 

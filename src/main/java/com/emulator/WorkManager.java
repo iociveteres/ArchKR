@@ -63,7 +63,7 @@ public class WorkManager {
             inputFile.close();
             System.out.println("pcr:\n" + pcr);
             System.out.println("lprogram:\n" + lProgram);
-            WorkManager.parseCommand();
+            //WorkManager.parseCommand();
             Instructions.setInstructions(lProgram);
         }
         catch (IOException e) {
@@ -71,10 +71,10 @@ public class WorkManager {
         }
     }
 
-    public static void parseCommand() {
-        for (int i = 0; i < lProgram.getSize(); ++i) {
+    public static Command parseCommand(String stringCommand) {
+
             Command currentCommand = new Command();
-            String buffer = lProgram.getElementAt(i);
+            String buffer = stringCommand;
             int stopPosition = -1;
 
             for (int j = 0; j < buffer.length(); ++j) {
@@ -117,13 +117,14 @@ public class WorkManager {
             }
 
             commands.add(currentCommand);
-        }
+
 
         for (Command command : commands) System.out.println(command);
+        return currentCommand;
     }
 
     public static boolean runAction(WorkFrame workFrame){
-        boolean canDo = (commandDone < commands.size());
+        boolean canDo = (commandDone < (Instructions.tableCommands.getRowCount()));
 
         if (canDo) {
             String currentPcrValue = pcr.get(commandDone);
@@ -158,39 +159,6 @@ public class WorkManager {
         resetMemory(workFrame);
         resetInstructions(workFrame);
         resetData();
-    }
-
-    public static void setRegister(WorkFrame workFrame, String registerName, String value) {
-        workFrame.getGeneralRegisters().setValue(registerName, value);
-        workFrame.getFloatGeneralRegisters().setValue(registerName, value);
-        workFrame.getFirstGroupSystemRegisters().setValue(registerName, value);
-        workFrame.getSecondGroupSystemRegisters().setValue(registerName, value);
-        workFrame.getThirdGroupSystemRegisters().setValue(registerName, value);
-    }
-
-    public static void setProcessorFlag(WorkFrame workFrame, String flagName, boolean state)
-    {
-        workFrame.getProcessorFlags().setFlag(flagName, state);
-    }
-
-    public static void setFloatProcessorFlag(WorkFrame workFrame, String flagName, boolean state)
-    {
-        workFrame.getFloatProcessorFlags().setFlag(flagName, state);
-    }
-
-    public static void setTlbCellValue(WorkFrame workFrame, int number, String value)
-    {
-        workFrame.getTlb().setValue(number, value);
-    }
-
-    public static void setMemoryCellValue(WorkFrame workFrame, int number, String value)
-    {
-        workFrame.getMemory().setValue(number, value);
-    }
-
-    public static void setInstructionsCellValue(WorkFrame workFrame, int number, String value)
-    {
-        workFrame.getInstructions().setValue(number, value);
     }
 
     public static void resetGeneralRegisters(WorkFrame workFrame)
@@ -234,6 +202,8 @@ public class WorkManager {
     }
 
     private static void executeCommand(WorkFrame workFrame, int index) {
+        String commandFromTable = Instructions.tableCommands.getModel().getValueAt(index, 0).toString();
+        Command command = parseCommand(commandFromTable);
         String operator = commands.get(index).getOperator();
 
         String strOperand1 = commands.get(index).getFirstOperand();

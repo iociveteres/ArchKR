@@ -1,37 +1,44 @@
 package com.emulator;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.Vector;
 
 public class Memory extends JScrollPane{
 
-    private static final String[] listData = new String[128];
-    private static final JList theList = new JList(listData);
+    private static Vector<Vector<String>> commandsStrings = new Vector<Vector<String>>();
+    static Vector<String> columnsHeader = new Vector<String>() {{add("Адрес"); add("Значение");}};
+    static DefaultTableModel tableModelMemory = new DefaultTableModel(commandsStrings, columnsHeader);
+    static JTable tableMemory = new JTable(tableModelMemory);
 
+    public Memory()
+    {
+        super();
+        this.setViewportView(tableMemory);;
+    }
 
     {
         initialSet();
     }
 
-    public Memory()
-    {
-        super(theList);
-    }
-
     public void initialSet() {
         for (int i = 0; i < 128; i++)
         {
-            listData[i] = WorkManager.IntToHex((int)(Math.random() * 2147483647));
+            final int a = i;
+            tableModelMemory.addRow(new Vector<>() {{add(WorkManager.IntToHex(a)); add(WorkManager.IntToHex(0));}});
         }
         this.updateUI();
+        tableModelMemory.fireTableDataChanged();
     }
 
     public void setValue(int number, String value) {
-        listData[number] = value;
-        this.updateUI();
+        tableMemory.getModel().setValueAt(value, number, 1);
+        tableModelMemory.fireTableDataChanged();
     }
 
     public String getValue(int number)
     {
-        return listData[number];
+        return tableMemory.getModel().getValueAt(number, 1).toString();
     }
 }
