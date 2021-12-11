@@ -2,7 +2,7 @@ package com.emulator;
 
 import javax.swing.*;
 
-public class ProcessorFlags extends JTable {
+public class IntegerProcessorFlags extends JTable {
 
     static String[] colNames =
             { "", "", "", "", "", "", "" };
@@ -11,7 +11,7 @@ public class ProcessorFlags extends JTable {
             { "C", "O", "S", "Z", "T", "I", "U" },
             { "0", "0", "0", "0", "0", "0", "0" } };
 
-    public ProcessorFlags() {
+    public IntegerProcessorFlags() {
         super(data, colNames);
         for(int i = 0; i < 7; i++) {
             getColumnModel().getColumn(i).setPreferredWidth(20);

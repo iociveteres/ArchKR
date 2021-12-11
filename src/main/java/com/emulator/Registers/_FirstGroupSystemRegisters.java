@@ -2,27 +2,28 @@ package com.emulator.Registers;
 
 import javax.swing.*;
 
-public class ThirdGroupSystemRegisters extends JTable {
+public class _FirstGroupSystemRegisters extends JTable {
 
     static String[] colNames =
             { "", "" };
 
     static String[][] data = {
-            { "ITP", "0x0000" },
-            { "PTP", "0x0000" },
-            { "BVA", "0x0000" },
-            { "BDP", "0x0000" }};
+            { "SR0", "" },
+            { "SR1", "" },
+            { "SR2", "" },
+            { "SR3", "" }};
 
-
-    public ThirdGroupSystemRegisters() {
+    public _FirstGroupSystemRegisters()
+    {
         super(data, colNames);
         getColumnModel().getColumn(0).setPreferredWidth(20);
     }
 
-    public void setValue(String registerName, String value) {
+    public void setValue(String registerName, String value)
+    {
         String buffer;
 
-        for (byte i = 0; i < 3; i++)
+        for (byte i = 0; i < 4; i++)
         {
             buffer = data[i][0];
             if (buffer.equalsIgnoreCase(registerName))
@@ -34,15 +35,12 @@ public class ThirdGroupSystemRegisters extends JTable {
         }
     }
 
-    public void resetAll() {
+    public void resetAll()
+    {
         for (byte i = 0; i < 4; i++)
-            data[i][1] = "0x0000";
-
+        {
+            data[i][1] = "";
+        }
         this.updateUI();
     }
-
-    public String readRegister(int index) {
-        return data[index][1];
-    }
-
 }

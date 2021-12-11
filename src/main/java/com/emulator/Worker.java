@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class WorkManager {
+public class Worker {
 
     public static String OPENED_FILE = "NONE";
     private static String TEXT_FROM_FILE = "";
@@ -123,14 +123,14 @@ public class WorkManager {
         return currentCommand;
     }
 
-    public static boolean runAction(WorkFrame workFrame){
+    public static boolean runAction(UI UI){
         boolean canDo = (commandDone < (Instructions.tableCommands.getRowCount()));
 
         if (canDo) {
             String currentPcrValue = pcr.get(commandDone);
-            workFrame.getSecondGroupSystemRegisters().updateCounter(currentPcrValue);
+            UI.getSecondGroupSystemRegisters().updateCounter(currentPcrValue);
             Instructions.counter(commandDone);
-            executeCommand(workFrame, commandDone);
+            executeCommand(UI, commandDone);
             ++commandDone;
         }
 
@@ -148,60 +148,60 @@ public class WorkManager {
         OPENED_FILE = "NONE";
     }
 
-    public static void resetSystem(WorkFrame workFrame) {
+    public static void resetSystem(UI UI) {
         System.out.println("Reset System!");
-        resetGeneralRegisters(workFrame);
-        resetFloatGeneralRegisters(workFrame);
-        resetSystemRegisters(workFrame);
-        resetProcessorFlags(workFrame);
-        resetFloatProcessorFlags(workFrame);
-        resetTLB(workFrame);
-        resetMemory(workFrame);
-        resetInstructions(workFrame);
+        resetGeneralRegisters(UI);
+        resetFloatGeneralRegisters(UI);
+        resetSystemRegisters(UI);
+        resetProcessorFlags(UI);
+        resetFloatProcessorFlags(UI);
+        resetTLB(UI);
+        resetMemory(UI);
+        resetInstructions(UI);
         resetData();
     }
 
-    public static void resetGeneralRegisters(WorkFrame workFrame)
+    public static void resetGeneralRegisters(UI UI)
     {
-        workFrame.getGeneralRegisters().resetAll();
+        UI.getGeneralRegisters().resetAll();
     }
 
-    public static void resetFloatGeneralRegisters(WorkFrame workFrame) {
-        workFrame.getFloatGeneralRegisters().resetAll();
+    public static void resetFloatGeneralRegisters(UI UI) {
+        UI.getFloatGeneralRegisters().resetAll();
     }
 
-    public static void resetSystemRegisters(WorkFrame workFrame) {
-        workFrame.getFirstGroupSystemRegisters().resetAll();
-        workFrame.getSecondGroupSystemRegisters().resetAll();
-        workFrame.getThirdGroupSystemRegisters().resetAll();
+    public static void resetSystemRegisters(UI UI) {
+        UI.getFirstGroupSystemRegisters().resetAll();
+        UI.getSecondGroupSystemRegisters().resetAll();
+        UI.getThirdGroupSystemRegisters().resetAll();
     }
 
-    public static void resetProcessorFlags(WorkFrame workFrame)
+    public static void resetProcessorFlags(UI UI)
     {
-        workFrame.getProcessorFlags().resetAll();
+        UI.getProcessorFlags().resetAll();
     }
 
-    public static void resetFloatProcessorFlags(WorkFrame workFrame)
+    public static void resetFloatProcessorFlags(UI UI)
     {
-        workFrame.getFloatProcessorFlags().resetAll();
+        UI.getFloatProcessorFlags().resetAll();
     }
 
-    public static void resetTLB(WorkFrame workFrame)
+    public static void resetTLB(UI UI)
     {
-        workFrame.getTlb().initialSet();
+        UI.getTlb().initialSet();
     }
 
-    public static void resetMemory(WorkFrame workFrame)
+    public static void resetMemory(UI UI)
     {
-        workFrame.getMemory().initialSet();
+        UI.getMemory().initialSet();
     }
 
-    public static void resetInstructions(WorkFrame workFrame)
+    public static void resetInstructions(UI UI)
     {
-        workFrame.getInstructions().initialSet();
+        UI.getInstructions().initialSet();
     }
 
-    private static void executeCommand(WorkFrame workFrame, int index) {
+    private static void executeCommand(UI UI, int index) {
         String commandFromTable = Instructions.tableCommands.getModel().getValueAt(index, 0).toString();
         Command command = parseCommand(commandFromTable);
         String operator = commands.get(index).getOperator();
@@ -221,168 +221,168 @@ public class WorkManager {
 
         switch (operator) {
             case "MOV" -> {
-                rValue = workFrame.getGeneralRegisters().regValue(operand2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, rValue);
+                rValue = UI.getGeneralRegisters().regValue(operand2);
+                UI.getGeneralRegisters().updateRegister(operand1, rValue);
             }
             case "LOH" -> {
-                mValue = workFrame.getMemory().getValue(operand2);
+                mValue = UI.getMemory().getValue(operand2);
                 mValueInt = HexToInt(mValue);
                 mValueIntHalfword = mValueInt & 65535;
                 mValueHalfword = IntToHex(mValueIntHalfword);
-                workFrame.getGeneralRegisters().updateRegister(operand1, mValueHalfword);
+                UI.getGeneralRegisters().updateRegister(operand1, mValueHalfword);
             }
             case "LOW" -> {
-                mValue = workFrame.getMemory().getValue(operand2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, mValue);
+                mValue = UI.getMemory().getValue(operand2);
+                UI.getGeneralRegisters().updateRegister(operand1, mValue);
             }
             case "LODW" -> {
-                mValue1 = workFrame.getMemory().getValue(operand2);
-                mValue2 = workFrame.getMemory().getValue(operand2 + 1);
-                workFrame.getGeneralRegisters().updateRegister(operand1, mValue1);
-                workFrame.getGeneralRegisters().updateRegister(operand1 + 1, mValue2);
+                mValue1 = UI.getMemory().getValue(operand2);
+                mValue2 = UI.getMemory().getValue(operand2 + 1);
+                UI.getGeneralRegisters().updateRegister(operand1, mValue1);
+                UI.getGeneralRegisters().updateRegister(operand1 + 1, mValue2);
             }
             case "STH" -> {
-                rValue = workFrame.getGeneralRegisters().regValue(operand2);
+                rValue = UI.getGeneralRegisters().regValue(operand2);
                 rValueInt = HexToInt(rValue);
                 rValueIntHalfword = rValueInt & 65535;
                 rValueHalfword = IntToHex(rValueIntHalfword);
-                workFrame.getMemory().setValue(operand1, rValueHalfword);
+                UI.getMemory().setValue(operand1, rValueHalfword);
             }
             case "STW" -> {
-                rValue = workFrame.getGeneralRegisters().regValue(operand2);
-                workFrame.getMemory().setValue(operand1, rValue);
+                rValue = UI.getGeneralRegisters().regValue(operand2);
+                UI.getMemory().setValue(operand1, rValue);
             }
             case "STDW" -> {
-                rValue1 = workFrame.getGeneralRegisters().regValue(operand2);
-                rValue2 = workFrame.getGeneralRegisters().regValue(operand2 + 1);
-                workFrame.getMemory().setValue(operand1, rValue1);
-                workFrame.getMemory().setValue(operand1 + 1, rValue2);
+                rValue1 = UI.getGeneralRegisters().regValue(operand2);
+                rValue2 = UI.getGeneralRegisters().regValue(operand2 + 1);
+                UI.getMemory().setValue(operand1, rValue1);
+                UI.getMemory().setValue(operand1 + 1, rValue2);
             }
             case "MOVC" -> {
                 strOperand2 = IntToHex(HexToInt(strOperand2));
-                workFrame.getGeneralRegisters().updateRegister(operand1, strOperand2);
+                UI.getGeneralRegisters().updateRegister(operand1, strOperand2);
             }
             case "MOVB" -> {
-                mValue1 = workFrame.getMemory().getValue(operand2 + operand3);
-                mValue2 = workFrame.getMemory().getValue(operand2 + operand3 + 1);
-                workFrame.getGeneralRegisters().updateRegister(operand1, mValue1);
-                workFrame.getGeneralRegisters().updateRegister(operand1 + 1, mValue2);
+                mValue1 = UI.getMemory().getValue(operand2 + operand3);
+                mValue2 = UI.getMemory().getValue(operand2 + operand3 + 1);
+                UI.getGeneralRegisters().updateRegister(operand1, mValue1);
+                UI.getGeneralRegisters().updateRegister(operand1 + 1, mValue2);
             }
             case "ADD" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 + r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "SUB" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 - r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "MUL", "MULU" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 * r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "DIV", "DIVU" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 / r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "CMP" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 - r2);
             }
             case "AND" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 & r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "OR" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 | r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "XOR" -> {
-                r1 = HexToInt(workFrame.getGeneralRegisters().regValue(operand2));
-                r2 = HexToInt(workFrame.getGeneralRegisters().regValue(operand3));
+                r1 = HexToInt(UI.getGeneralRegisters().regValue(operand2));
+                r2 = HexToInt(UI.getGeneralRegisters().regValue(operand3));
                 r0v = IntToHex(r1 ^ r2);
-                workFrame.getGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "SHL" -> {
-                r = HexToInt(workFrame.getGeneralRegisters().regValue(operand1));
+                r = HexToInt(UI.getGeneralRegisters().regValue(operand1));
                 rv = IntToHex(r << 1);
-                workFrame.getGeneralRegisters().updateRegister(operand1, rv);
+                UI.getGeneralRegisters().updateRegister(operand1, rv);
             }
             case "SHR" -> {
-                r = HexToInt(workFrame.getGeneralRegisters().regValue(operand1));
+                r = HexToInt(UI.getGeneralRegisters().regValue(operand1));
                 rv = IntToHex(r >> 1);
-                workFrame.getGeneralRegisters().updateRegister(operand1, rv);
+                UI.getGeneralRegisters().updateRegister(operand1, rv);
             }
             case "FADD" -> {
-                r1 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand2));
-                r2 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand3));
+                r1 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand2));
+                r2 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand3));
                 r0v = IntToHex(r1 + r2);
-                workFrame.getFloatGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getFloatGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "FSUB" -> {
-                r1 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand2));
-                r2 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand3));
+                r1 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand2));
+                r2 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand3));
                 r0v = IntToHex(r1 - r2);
-                workFrame.getFloatGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getFloatGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "FMUL" -> {
-                r1 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand2));
-                r2 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand3));
+                r1 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand2));
+                r2 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand3));
                 r0v = IntToHex(r1 * r2);
-                workFrame.getFloatGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getFloatGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "FDIV" -> {
-                r1 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand2));
-                r2 = HexToInt(workFrame.getFloatGeneralRegisters().getRegisterValue(operand3));
+                r1 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand2));
+                r2 = HexToInt(UI.getFloatGeneralRegisters().getRegisterValue(operand3));
                 r0v = IntToHex(r1 / r2);
-                workFrame.getFloatGeneralRegisters().updateRegister(operand1, r0v);
+                UI.getFloatGeneralRegisters().updateRegister(operand1, r0v);
             }
             case "INT" -> {
-                indicator = workFrame.getProcessorFlags().valueOfFlag(5);
+                indicator = UI.getProcessorFlags().valueOfFlag(5);
                 if (indicator == 0) {
                     JOptionPane.showMessageDialog(null, "Interrupts are impossible", "Error", JOptionPane.ERROR_MESSAGE);
                 }
                 if (indicator == 1) {
                     System.out.println(" " + strOperand1.length());
                     s = pcr.get(commandDone + 1);
-                    workFrame.getSecondGroupSystemRegisters().updateRegister(2, s);
-                    workFrame.getSecondGroupSystemRegisters().updateRegister(3, workFrame.getProcessorFlags().flags());
+                    UI.getSecondGroupSystemRegisters().updateRegister(2, s);
+                    UI.getSecondGroupSystemRegisters().updateRegister(3, UI.getProcessorFlags().flags());
 
                     JOptionPane.showMessageDialog(null, "Call the " + operand1 + " interrupt", "Information", JOptionPane.PLAIN_MESSAGE);
                 }
             }
             case "RET" -> {
-                workFrame.getSecondGroupSystemRegisters().updateRegister(2, "0x00000");
-                workFrame.getSecondGroupSystemRegisters().updateRegister(3, "0x00000");
+                UI.getSecondGroupSystemRegisters().updateRegister(2, "0x00000");
+                UI.getSecondGroupSystemRegisters().updateRegister(3, "0x00000");
             }
-            case "CLRI" -> workFrame.getProcessorFlags().updateFlag(5, "0");
-            case "SETI" -> workFrame.getProcessorFlags().updateFlag(5, "1");
-            case "JZ" -> workFrame.getProcessorFlags().updateFlag(3, "1");
-            case "JNZ" -> workFrame.getProcessorFlags().updateFlag(3, "0");
-            case "JO" -> workFrame.getProcessorFlags().updateFlag(1, "1");
-            case "JNO" -> workFrame.getProcessorFlags().updateFlag(1, "0");
-            case "JS" -> workFrame.getProcessorFlags().updateFlag(2, "1");
-            case "JNS" -> workFrame.getProcessorFlags().updateFlag(2, "0");
-            case "JC" -> workFrame.getProcessorFlags().updateFlag(0, "1");
-            case "JCO" -> workFrame.getProcessorFlags().updateFlag(0, "0");
-            case "RTLBR" -> s = workFrame.getThirdGroupSystemRegisters().readRegister(1);
-            case "RBVA" -> s = workFrame.getThirdGroupSystemRegisters().readRegister(2);
-            case "RFLG" -> s = workFrame.getSecondGroupSystemRegisters().readRegister(1);
-            case "RRFLG" -> s = workFrame.getSecondGroupSystemRegisters().readRegister(2);
-            case "CALL" -> workFrame.getProcessorFlags().updateFlag(6, "0");
-            case "RFE" -> workFrame.getProcessorFlags().updateFlag(6, "1");
+            case "CLRI" -> UI.getProcessorFlags().updateFlag(5, "0");
+            case "SETI" -> UI.getProcessorFlags().updateFlag(5, "1");
+            case "JZ" -> UI.getProcessorFlags().updateFlag(3, "1");
+            case "JNZ" -> UI.getProcessorFlags().updateFlag(3, "0");
+            case "JO" -> UI.getProcessorFlags().updateFlag(1, "1");
+            case "JNO" -> UI.getProcessorFlags().updateFlag(1, "0");
+            case "JS" -> UI.getProcessorFlags().updateFlag(2, "1");
+            case "JNS" -> UI.getProcessorFlags().updateFlag(2, "0");
+            case "JC" -> UI.getProcessorFlags().updateFlag(0, "1");
+            case "JCO" -> UI.getProcessorFlags().updateFlag(0, "0");
+            case "RTLBR" -> s = UI.getThirdGroupSystemRegisters().readRegister(1);
+            case "RBVA" -> s = UI.getThirdGroupSystemRegisters().readRegister(2);
+            case "RFLG" -> s = UI.getSecondGroupSystemRegisters().readRegister(1);
+            case "RRFLG" -> s = UI.getSecondGroupSystemRegisters().readRegister(2);
+            case "CALL" -> UI.getProcessorFlags().updateFlag(6, "0");
+            case "RFE" -> UI.getProcessorFlags().updateFlag(6, "1");
         }
     }
 

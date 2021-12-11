@@ -2,7 +2,6 @@ package com.emulator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.util.Vector;
 
 public class Memory extends JScrollPane{
@@ -26,7 +25,7 @@ public class Memory extends JScrollPane{
         for (int i = 0; i < 128; i++)
         {
             final int a = i;
-            tableModelMemory.addRow(new Vector<>() {{add(WorkManager.IntToHex(a)); add(WorkManager.IntToHex(0));}});
+            tableModelMemory.addRow(new Vector<>() {{add(Worker.IntToHex(a)); add(Worker.IntToHex(0));}});
         }
         this.updateUI();
         tableModelMemory.fireTableDataChanged();

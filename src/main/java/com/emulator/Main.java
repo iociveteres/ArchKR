@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
 
         EventQueue.invokeLater(() -> {
-            JFrame frame = new WorkFrame();
+            JFrame frame = new UI();
             frame.setTitle("Мохнаткин, Волконенков, Сергеев, вариант 9");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);

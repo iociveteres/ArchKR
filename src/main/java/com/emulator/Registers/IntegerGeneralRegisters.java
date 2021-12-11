@@ -2,7 +2,7 @@ package com.emulator.Registers;
 
 import javax.swing.*;
 
-public class GeneralRegisters extends JTable {
+public class IntegerGeneralRegisters extends JTable {
 
     static String[] colNames =
             { "", "" };
@@ -12,7 +12,7 @@ public class GeneralRegisters extends JTable {
             { "RG8", "" }, { "RG9", "" }, { "RG10", "" }, { "RG11", "" },
             { "RG12", "" }, { "RG13", "" }, { "RG14", "" }, { "RG15", "" }, };
 
-    public GeneralRegisters()
+    public IntegerGeneralRegisters()
     {
         super(data, colNames);
         getColumnModel().getColumn(0).setPreferredWidth(20);

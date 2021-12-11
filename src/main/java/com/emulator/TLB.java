@@ -25,7 +25,7 @@ public class TLB extends JScrollPane{
         for (int i = 0; i < 128; i++)
         {
             final int a = i;
-            tableModelTLB.addRow(new Vector<>() {{add(WorkManager.IntToHex(a)); add(WorkManager.IntToHex(0));}});
+            tableModelTLB.addRow(new Vector<>() {{add(Worker.IntToHex(a)); add(Worker.IntToHex(0));}});
         }
         this.updateUI();
         tableModelTLB.fireTableDataChanged();

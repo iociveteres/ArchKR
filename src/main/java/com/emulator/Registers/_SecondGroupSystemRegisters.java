@@ -2,7 +2,7 @@ package com.emulator.Registers;
 
 import javax.swing.*;
 
-public class SecondGroupSystemRegisters extends JTable {
+public class _SecondGroupSystemRegisters extends JTable {
 
     static String[] colNames =
             { "", "" };
@@ -14,7 +14,7 @@ public class SecondGroupSystemRegisters extends JTable {
             { "IPC", "0x0000" },
             { "IFL", "0x0000" }};
 
-    public SecondGroupSystemRegisters() {
+    public _SecondGroupSystemRegisters() {
         super(data, colNames);
         getColumnModel().getColumn(0).setPreferredWidth(20);
     }

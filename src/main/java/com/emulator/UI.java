@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Objects;
 
-public class WorkFrame extends JFrame {
+public class UI extends JFrame {
 
     private static final int DEFAULT_WIDTH = 1000;
     private static final int DEFAULT_HEIGHT = 850;
@@ -22,12 +22,12 @@ public class WorkFrame extends JFrame {
     private final JButton runButton = new JButton("Выполнить");
 
 
-    private final GeneralRegisters generalRegisters = new GeneralRegisters();
+    private final IntegerGeneralRegisters generalRegisters = new IntegerGeneralRegisters();
     private final FloatGeneralRegisters floatGeneralRegisters = new FloatGeneralRegisters();
-    private final FirstGroupSystemRegisters firstGroupSystemRegisters = new FirstGroupSystemRegisters();
-    private final SecondGroupSystemRegisters secondGroupSystemRegisters = new SecondGroupSystemRegisters();
-    private final ThirdGroupSystemRegisters thirdGroupSystemRegisters = new ThirdGroupSystemRegisters();
-    private final ProcessorFlags processorFlags = new ProcessorFlags();
+    private final _FirstGroupSystemRegisters firstGroupSystemRegisters = new _FirstGroupSystemRegisters();
+    private final _SecondGroupSystemRegisters secondGroupSystemRegisters = new _SecondGroupSystemRegisters();
+    private final _ThirdGroupSystemRegisters thirdGroupSystemRegisters = new _ThirdGroupSystemRegisters();
+    private final IntegerProcessorFlags processorFlags = new IntegerProcessorFlags();
     private final FloatProcessorFlags floatProcessorFlags = new FloatProcessorFlags();
     private final TLB tlb = new TLB();
     private final Memory memory = new Memory();
@@ -47,14 +47,14 @@ public class WorkFrame extends JFrame {
         JFrame container = new JFrame();
         fileChooser.showOpenDialog(container);
         try {
-            WorkManager.OPENED_FILE = fileChooser.getSelectedFile().getAbsolutePath();
+            Worker.OPENED_FILE = fileChooser.getSelectedFile().getAbsolutePath();
 
-            System.out.println(" " + WorkManager.OPENED_FILE);
-            if (!Objects.equals(WorkManager.OPENED_FILE, "")) {
-                WorkManager.getTextFromFile();
+            System.out.println(" " + Worker.OPENED_FILE);
+            if (!Objects.equals(Worker.OPENED_FILE, "")) {
+                Worker.getTextFromFile();
             }
 
-            WorkManager.copyDataToProgram();
+            Worker.copyDataToProgram();
         }
         catch (NullPointerException exception) {
             System.out.println("No file chosen: " + exception.getMessage());
@@ -67,7 +67,7 @@ public class WorkFrame extends JFrame {
         System.out.println("ActionListener.actionPerformed : reset");
         stepButton.setEnabled(true);
         runButton.setEnabled(true);
-        WorkManager.resetSystem(WorkFrame.this);
+        Worker.resetSystem(UI.this);
         instructions.initialSet();
     };
 
@@ -88,7 +88,7 @@ public class WorkFrame extends JFrame {
                 null, options, options[0]);
     };
 
-    public WorkFrame() {
+    public UI() {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
         setBounds(screenSize.width/2 - DEFAULT_WIDTH/2, screenSize.height/2 - DEFAULT_HEIGHT/2, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -237,7 +237,7 @@ public class WorkFrame extends JFrame {
         fileChooser.setFileFilter(fileFilter);
 
         stepButton.addActionListener(e -> {
-            boolean endOfCommands = !WorkManager.runAction(WorkFrame.this);
+            boolean endOfCommands = !Worker.runAction(UI.this);
             if(endOfCommands) {
                 JOptionPane.showMessageDialog(null, "Команды выполнены!");
                 stepButton.setEnabled(false);
@@ -248,7 +248,7 @@ public class WorkFrame extends JFrame {
         runButton.addActionListener(e -> {
             boolean endOfCommands = true;
             do {
-                endOfCommands = !WorkManager.runAction(WorkFrame.this);
+                endOfCommands = !Worker.runAction(UI.this);
                 if (endOfCommands) {
                     JOptionPane.showMessageDialog(null, "Команды выполнены!");
                     stepButton.setEnabled(false);
@@ -258,7 +258,7 @@ public class WorkFrame extends JFrame {
         });
     }
 
-    public GeneralRegisters getGeneralRegisters() {
+    public IntegerGeneralRegisters getGeneralRegisters() {
         return generalRegisters;
     }
 
@@ -266,19 +266,19 @@ public class WorkFrame extends JFrame {
         return floatGeneralRegisters;
     }
 
-    public FirstGroupSystemRegisters getFirstGroupSystemRegisters() {
+    public _FirstGroupSystemRegisters getFirstGroupSystemRegisters() {
         return firstGroupSystemRegisters;
     }
 
-    public SecondGroupSystemRegisters getSecondGroupSystemRegisters() {
+    public _SecondGroupSystemRegisters getSecondGroupSystemRegisters() {
         return secondGroupSystemRegisters;
     }
 
-    public ThirdGroupSystemRegisters getThirdGroupSystemRegisters() {
+    public _ThirdGroupSystemRegisters getThirdGroupSystemRegisters() {
         return thirdGroupSystemRegisters;
     }
 
-    public ProcessorFlags getProcessorFlags() {
+    public IntegerProcessorFlags getProcessorFlags() {
         return processorFlags;
     }
 
